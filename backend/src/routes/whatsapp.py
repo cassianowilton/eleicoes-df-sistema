@@ -6,11 +6,10 @@ Suporta Twilio WhatsApp API e Meta WhatsApp Business API
 from flask import Blueprint, request, jsonify
 import json
 import requests
-from src.services.ia_service import IAService
+from src.services import ia_service
 from src.routes.eleicoes import executar_consulta
 
 whatsapp_bp = Blueprint('whatsapp', __name__)
-ia_service = IAService()
 
 # Configurações do WhatsApp (serão definidas via variáveis de ambiente)
 WHATSAPP_CONFIG = {

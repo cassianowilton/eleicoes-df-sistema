@@ -1,258 +1,229 @@
 """
 Serviço de IA para processamento de linguagem natural
-Converte perguntas em linguagem natural para consultas SQL
+Integrado com múltiplos LLMs via LLMService
 """
-
-import openai
 import json
 import re
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List
+from .llm_service import llm_service
 
-class IAService:
-    def __init__(self):
-        # A API key já está configurada no ambiente
-        self.client = openai.OpenAI()
-        
-    def processar_pergunta(self, pergunta: str) -> Dict[str, Any]:
-        """
-        Processa uma pergunta em linguagem natural e retorna parâmetros para consulta
-        """
-        try:
-            # Prompt para a IA entender a pergunta e extrair parâmetros
-            prompt = f"""
-Você é um assistente especializado em eleições do Distrito Federal de 2022 para Deputado Distrital.
+def processar_pergunta(pergunta: str, provider: str = None) -> Dict[str, Any]:
+    """
+    Processa pergunta em linguagem natural usando IA
+    
+    Args:
+        pergunta: Pergunta do usuário
+        provider: Provedor específico de LLM (opcional)
+    
+    Returns:
+        Dict com análise da pergunta
+    """
+    
+    # Prompt melhorado para análise de consultas eleitorais
+    prompt = f"""
+Você é um assistente especializado em análise de dados eleitorais do Distrito Federal 2022.
 
-Analise a pergunta do usuário e extraia os parâmetros necessários para fazer uma consulta no banco de dados.
+CONTEXTO DOS DADOS:
+- 590 candidatos a deputado distrital
+- 19 zonas eleitorais
+- 6.748 seções eleitorais  
+- 107 locais de votação
+- 1.535.545 votos totais
 
-PERGUNTA: "{pergunta}"
+MAPEAMENTO DE REGIÕES → ZONAS:
+- Brasília/Plano Piloto → Zona 1
+- Gama → Zona 2  
+- Taguatinga → Zona 3
+- Brazlândia → Zona 4
+- Sobradinho → Zona 5
+- Planaltina → Zona 6
+- Núcleo Bandeirante → Zona 8
+- Ceilândia → Zona 9
+- Guará → Zona 10
+- Cruzeiro → Zona 11
+- Sobradinho II → Zona 13
+- Samambaia → Zona 14
+- São Sebastião → Zona 15
+- Recanto das Emas → Zona 16
+- Lago Sul → Zona 17
+- Riacho Fundo → Zona 18
+- Águas Claras → Zona 19
+- Vicente Pires → Zona 20
+- Paranoá → Zona 21
 
-CONTEXTO DO BANCO DE DADOS:
-- Tabela 'candidatos': nm_votavel (nome), nr_votavel (número), sq_candidato
-- Tabela 'votacao': qt_votos (quantidade de votos), nr_zona, nr_secao
-- Tabela 'zonas_eleitorais': nr_zona (1-21, exceto 7 e 12)
-- Tabela 'locais_votacao': nm_local_votacao, ds_endereco
-- Tabela 'secoes_eleitorais': nr_secao, nr_zona, nr_local_votacao
+TIPOS DE CONSULTA DISPONÍVEIS:
+1. mais_votados - Top candidatos geral
+2. candidatos_zona - Candidatos por zona/região
+3. buscar_candidato - Buscar por nome
+4. votos_candidato_regiao - Votos de candidato por região(ões)
+5. votos_candidato_secao - Votos de candidato por seção
+6. comparar_regioes - Comparar votação entre regiões
+7. ranking_local - Ranking por local de votação
+8. estatisticas - Estatísticas gerais
+9. zonas - Listar zonas
+10. locais - Listar locais
 
-REGIÕES ADMINISTRATIVAS DO DF (Mapeamento Completo):
-- Zona 1: Brasília/Plano Piloto (RA I - Brasília)
-- Zona 2: Gama (RA II - Gama)  
-- Zona 3: Taguatinga (RA III - Taguatinga)
-- Zona 4: Brazlândia (RA IV - Brazlândia)
-- Zona 5: Sobradinho (RA V - Sobradinho)
-- Zona 6: Planaltina (RA VI - Planaltina)
-- Zona 8: Núcleo Bandeirante (RA VIII - Núcleo Bandeirante)
-- Zona 9: Ceilândia (RA IX - Ceilândia)
-- Zona 10: Guará (RA X - Guará)
-- Zona 11: Cruzeiro (RA XI - Cruzeiro)
-- Zona 13: Sobradinho II (RA XXVI - Sobradinho II)
-- Zona 14: Samambaia (RA XII - Samambaia)
-- Zona 15: São Sebastião (RA XIV - São Sebastião)
-- Zona 16: Recanto das Emas (RA XV - Recanto das Emas)
-- Zona 17: Lago Sul (RA XVI - Lago Sul)
-- Zona 18: Riacho Fundo (RA XVII - Riacho Fundo)
-- Zona 19: Águas Claras (RA XX - Águas Claras)
-- Zona 20: Vicente Pires (RA XXX - Vicente Pires)
-- Zona 21: Paranoá (RA VII - Paranoá)
+EXEMPLOS DE ANÁLISE:
+- "Top 5 candidatos" → tipo: mais_votados, limite: 5
+- "Candidatos em Ceilândia" → tipo: candidatos_zona, zona: 9, regiao: "ceilândia"
+- "Buscar João Silva" → tipo: buscar_candidato, nome_candidato: "João Silva"
+- "Quantos votos Fábio Felix teve em Taguatinga?" → tipo: votos_candidato_regiao, candidato_especifico: "Fábio Felix", regiao: "taguatinga"
+- "Votos de Marcos na seção 123" → tipo: votos_candidato_secao, candidato_especifico: "Marcos", secao: 123
+- "Comparar Ceilândia e Samambaia" → tipo: comparar_regioes, regioes_comparar: ["ceilândia", "samambaia"]
 
-SINÔNIMOS E VARIAÇÕES:
-- Brasília = Plano Piloto = Asa Norte = Asa Sul = RA I
-- Ceilândia = Ceilandia = RA IX
-- Taguatinga = Taguatinga Norte = Taguatinga Sul = RA III
-- Águas Claras = Aguas Claras = RA XX
-- São Sebastião = Sao Sebastiao = RA XIV
-- Núcleo Bandeirante = Nucleo Bandeirante = Candangolândia = RA VIII
+PERGUNTA DO USUÁRIO: "{pergunta}"
 
-Retorne APENAS um JSON válido com os seguintes campos:
+Analise a pergunta e retorne APENAS um JSON válido com:
 {{
-    "tipo_consulta": "mais_votados|buscar_candidato|candidatos_zona|candidatos_regiao|votos_candidato_regiao|votos_candidato_secao|comparar_regioes|ranking_local|estatisticas|zonas|locais|erro",
+    "tipo_consulta": "tipo_identificado",
     "parametros": {{
-        "limite": número (padrão 10),
-        "nome_candidato": "string ou null",
-        "zona": número ou null,
-        "regiao": "string ou null",
-        "secao": número ou null,
-        "local_votacao": "string ou null",
-        "regioes_comparar": ["lista de regiões"] ou null,
-        "candidato_especifico": "string ou null"
+        "limite": numero_se_aplicavel,
+        "zona": numero_zona_se_aplicavel,
+        "regiao": "nome_regiao_se_aplicavel",
+        "nome_candidato": "nome_se_busca",
+        "candidato_especifico": "nome_candidato_se_consulta_especifica",
+        "secao": numero_secao_se_aplicavel,
+        "regioes_comparar": ["regiao1", "regiao2"],
+        "local_votacao": "nome_local_se_aplicavel"
     }},
-    "sql_sugerido": "consulta SQL sugerida ou null",
-    "explicacao": "explicação da interpretação"
+    "explicacao": "breve_explicacao_da_analise"
 }}
 
-EXEMPLOS DE CONSULTAS COMPLEXAS:
-- "Quantos votos Fábio Felix teve em cada cidade?" → tipo: "votos_candidato_regiao", candidato_especifico: "Fábio Felix"
-- "Votos do deputado João na seção 123" → tipo: "votos_candidato_secao", candidato_especifico: "João", secao: 123
-- "Comparar votação entre Ceilândia e Taguatinga" → tipo: "comparar_regioes", regioes_comparar: ["Ceilândia", "Taguatinga"]
-- "Candidato mais votado no Colégio X" → tipo: "ranking_local", local_votacao: "Colégio X"
-- "Votos de Francisco Domingos em Samambaia" → tipo: "votos_candidato_regiao", candidato_especifico: "Francisco Domingos", regiao: "Samambaia"
+Se não conseguir identificar, retorne:
+{{
+    "tipo_consulta": "erro",
+    "parametros": {{}},
+    "explicacao": "Não foi possível entender a pergunta"
+}}
 """
 
-            response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "Você é um especialista em análise de dados eleitorais. Retorne apenas JSON válido."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.1,
-                max_tokens=500
-            )
-            
-            resposta_ia = response.choices[0].message.content.strip()
-            
-            # Tentar extrair JSON da resposta
-            try:
-                # Remover possíveis marcadores de código
-                resposta_ia = re.sub(r'```json\s*', '', resposta_ia)
-                resposta_ia = re.sub(r'```\s*$', '', resposta_ia)
-                
-                resultado = json.loads(resposta_ia)
-                return resultado
-                
-            except json.JSONDecodeError as e:
-                print(f"Erro ao decodificar JSON da IA: {e}")
-                print(f"Resposta da IA: {resposta_ia}")
-                return self._fallback_analysis(pergunta)
-                
-        except Exception as e:
-            print(f"Erro na consulta à IA: {e}")
-            return self._fallback_analysis(pergunta)
+    messages = [
+        {"role": "system", "content": "Você é um assistente especializado em análise de consultas eleitorais. Responda sempre em JSON válido."},
+        {"role": "user", "content": prompt}
+    ]
     
-    def _fallback_analysis(self, pergunta: str) -> Dict[str, Any]:
-        """
-        Análise de fallback usando regex quando a IA falha
-        """
-        pergunta_lower = pergunta.lower()
+    try:
+        # Usar LLM service com fallback automático
+        result = llm_service.chat_completion(
+            messages=messages,
+            provider=provider,
+            temperature=0.1,
+            max_tokens=500
+        )
         
-        # Detectar números
-        numeros = re.findall(r'\d+', pergunta)
-        limite = int(numeros[0]) if numeros else 10
-        
-        # Detectar regiões/zonas (mapeamento completo)
-        mapa_regioes = {
-            'ceilândia': 9, 'ceilandia': 9,
-            'taguatinga': 3, 'taguatinga norte': 3, 'taguatinga sul': 3,
-            'samambaia': 14,
-            'gama': 2,
-            'planaltina': 6,
-            'sobradinho': 5, 'sobradinho ii': 13,
-            'brasília': 1, 'brasilia': 1, 'plano piloto': 1, 'asa norte': 1, 'asa sul': 1,
-            'guará': 10, 'guara': 10,
-            'águas claras': 19, 'aguas claras': 19,
-            'vicente pires': 20,
-            'são sebastião': 15, 'sao sebastiao': 15,
-            'recanto das emas': 16,
-            'paranoá': 21, 'paranoa': 21,
-            'núcleo bandeirante': 8, 'nucleo bandeirante': 8, 'candangolândia': 8, 'candangolandia': 8,
-            'cruzeiro': 11,
-            'lago sul': 17,
-            'riacho fundo': 18,
-            'brazlândia': 4, 'brazlandia': 4
-        }
-        
-        zona = None
-        regiao = None
-        for nome_regiao, nr_zona in mapa_regioes.items():
-            if nome_regiao in pergunta_lower:
-                zona = nr_zona
-                regiao = nome_regiao
-                break
-        
-        # Detectar zona por número
-        zona_match = re.search(r'zona (\d+)', pergunta_lower)
-        if zona_match:
-            zona = int(zona_match.group(1))
-        
-        # Determinar tipo de consulta
-        if 'mais votado' in pergunta_lower or 'top' in pergunta_lower:
-            if zona:
-                return {
-                    "tipo_consulta": "candidatos_zona",
-                    "parametros": {"limite": limite, "zona": zona, "regiao": regiao},
-                    "explicacao": f"Buscar {limite} candidatos mais votados na zona {zona}"
-                }
-            else:
-                return {
-                    "tipo_consulta": "mais_votados",
-                    "parametros": {"limite": limite},
-                    "explicacao": f"Buscar {limite} candidatos mais votados geral"
-                }
-        
-        elif 'buscar' in pergunta_lower or 'candidato' in pergunta_lower:
-            # Extrair nome do candidato
-            palavras = pergunta.split()
-            nome_candidato = ' '.join([p for p in palavras if p.lower() not in ['buscar', 'candidato', 'por', 'nome', 'deputado']])
-            
+        if not result['success']:
             return {
-                "tipo_consulta": "buscar_candidato",
-                "parametros": {"nome_candidato": nome_candidato.strip()},
-                "explicacao": f"Buscar candidato com nome '{nome_candidato}'"
+                'tipo_consulta': 'erro',
+                'parametros': {},
+                'explicacao': f'Erro na IA: {result.get("error", "Erro desconhecido")}',
+                'provider_info': result
             }
         
-        elif 'estatística' in pergunta_lower or 'resumo' in pergunta_lower:
-            return {
-                "tipo_consulta": "estatisticas",
-                "parametros": {},
-                "explicacao": "Mostrar estatísticas gerais das eleições"
-            }
-        
-        elif 'zona' in pergunta_lower:
-            return {
-                "tipo_consulta": "zonas",
-                "parametros": {},
-                "explicacao": "Listar zonas eleitorais"
-            }
-        
-        elif 'local' in pergunta_lower:
-            return {
-                "tipo_consulta": "locais",
-                "parametros": {},
-                "explicacao": "Listar locais de votação"
-            }
-        
-        return {
-            "tipo_consulta": "erro",
-            "parametros": {},
-            "explicacao": "Não foi possível entender a pergunta"
-        }
-    
-    def gerar_resposta_natural(self, pergunta: str, dados: Dict[str, Any]) -> str:
-        """
-        Gera uma resposta em linguagem natural baseada nos dados retornados
-        """
+        # Tentar parsear JSON da resposta
         try:
-            prompt = f"""
+            analise = json.loads(result['content'])
+            
+            # Adicionar informações do provedor usado
+            analise['provider_info'] = {
+                'provider': result['provider'],
+                'model': result['model'],
+                'cost': result.get('cost', {}),
+                'usage': result.get('usage', {})
+            }
+            
+            return analise
+            
+        except json.JSONDecodeError:
+            # Fallback: tentar extrair JSON da resposta
+            json_match = re.search(r'\{.*\}', result['content'], re.DOTALL)
+            if json_match:
+                try:
+                    analise = json.loads(json_match.group())
+                    analise['provider_info'] = {
+                        'provider': result['provider'],
+                        'model': result['model']
+                    }
+                    return analise
+                except:
+                    pass
+            
+            return {
+                'tipo_consulta': 'erro',
+                'parametros': {},
+                'explicacao': 'Resposta da IA não está em formato JSON válido',
+                'raw_response': result['content'],
+                'provider_info': result
+            }
+    
+    except Exception as e:
+        return {
+            'tipo_consulta': 'erro',
+            'parametros': {},
+            'explicacao': f'Erro ao processar pergunta: {str(e)}'
+        }
+
+def gerar_resposta_natural(pergunta: str, dados: Dict[str, Any], provider: str = None) -> str:
+    """
+    Gera resposta em linguagem natural baseada nos dados
+    
+    Args:
+        pergunta: Pergunta original do usuário
+        dados: Dados retornados pela consulta
+        provider: Provedor específico de LLM (opcional)
+    
+    Returns:
+        Resposta em linguagem natural
+    """
+    
+    prompt = f"""
 Você é um assistente especializado em eleições do DF 2022.
 
-PERGUNTA ORIGINAL: "{pergunta}"
+PERGUNTA DO USUÁRIO: "{pergunta}"
 
-DADOS RETORNADOS: {json.dumps(dados, ensure_ascii=False, indent=2)}
+DADOS ENCONTRADOS: {json.dumps(dados, ensure_ascii=False, indent=2)}
 
-Gere uma resposta natural, amigável e informativa em português brasileiro.
+Gere uma resposta natural, clara e informativa baseada nos dados. 
 
 DIRETRIZES:
-- Use linguagem clara e acessível
+- Use linguagem brasileira informal mas profissional
 - Destaque os números mais importantes
-- Se houver candidatos, mencione os nomes e votos
-- Se houver zonas, mencione as regiões
-- Seja conciso mas informativo
-- Use emojis quando apropriado (🗳️ 📊 🏆 etc.)
+- Se houver muitos resultados, foque nos principais
+- Use emojis moderadamente (📊, 🗳️, 🏆)
+- Seja conciso mas completo
+- Se não houver dados, explique de forma amigável
 
-Retorne apenas a resposta em texto, sem formatação JSON.
+FORMATO DA RESPOSTA:
+- Resposta direta à pergunta
+- Principais resultados com números
+- Contexto adicional se relevante
 """
 
-            response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "Você é um assistente amigável especializado em dados eleitorais."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=300
-            )
-            
-            return response.choices[0].message.content.strip()
-            
-        except Exception as e:
-            print(f"Erro ao gerar resposta natural: {e}")
-            return "Encontrei os dados solicitados, mas tive dificuldade para formatá-los. Consulte os dados retornados para mais detalhes."
+    messages = [
+        {"role": "system", "content": "Você é um assistente especializado em dados eleitorais. Responda de forma natural e informativa."},
+        {"role": "user", "content": prompt}
+    ]
+    
+    try:
+        result = llm_service.chat_completion(
+            messages=messages,
+            provider=provider,
+            temperature=0.3,
+            max_tokens=800
+        )
+        
+        if result['success']:
+            return result['content']
+        else:
+            return f"Encontrei os dados solicitados, mas tive dificuldade para formatá-los. Consulte os dados retornados para mais detalhes."
+    
+    except Exception as e:
+        return f"Dados encontrados com sucesso. Erro na formatação da resposta: {str(e)}"
+
+def obter_status_ia() -> Dict[str, Any]:
+    """Retorna status completo do serviço de IA"""
+    return llm_service.get_status()
+
+def testar_provedores() -> Dict[str, Any]:
+    """Testa todos os provedores de LLM"""
+    return llm_service.test_providers()
 

@@ -6,10 +6,9 @@ from flask import Blueprint, jsonify, request, current_app
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import re
-from src.services.ia_service import IAService
+from src.services import ia_service
 
 eleicoes_bp = Blueprint('eleicoes', __name__)
-ia_service = IAService()
 
 def get_db_connection():
     """Obtém conexão com o banco PostgreSQL"""
