@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Eleições DF 2022 - Demonstração</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .demo-section {
+            padding: 30px;
+        }
+        
+        .demo-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .demo-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .demo-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .query-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .query-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .result-area {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .endpoints {
+            background: #ecf0f1;
+            padding: 30px;
+        }
+        
+        .endpoint-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .endpoint {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .endpoint.get {
+            border-left-color: #27ae60;
+        }
+        
+        .endpoint.post {
+            border-left-color: #3498db;
+        }
+        
+        .method {
+            font-weight: bold;
+            margin-right: 10px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+        
+        .method.get {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .method.post {
+            background: #3498db;
+            color: white;
+        }
+        
+        .whatsapp-demo {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .whatsapp-demo h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .whatsapp-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .whatsapp-example {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .whatsapp-example h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .whatsapp-example p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗳️ API Eleições DF 2022</h1>
+            <p>Sistema Inteligente de Análise de Dados Eleitorais com IA e WhatsApp</p>
+        </div>
+        
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-votos">-</div>
+                <div class="stat-label">Total de Votos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-candidatos">-</div>
+                <div class="stat-label">Candidatos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-zonas">-</div>
+                <div class="stat-label">Zonas Eleitorais</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-secoes">-</div>
+                <div class="stat-label">Seções</div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🤖 Demonstração da IA</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>Consulta em Linguagem Natural</h3>
+                    <input type="text" class="query-input" id="natural-query" 
+                           placeholder="Ex: Quais os 5 candidatos mais votados em Ceilândia?">
+                    <button class="btn" onclick="consultaNatural()">Perguntar à IA</button>
+                    <button class="btn btn-success" onclick="exemploConsulta('Top 10 candidatos mais votados')">Exemplo 1</button>
+                    <button class="btn btn-success" onclick="exemploConsulta('Candidatos mais votados em Taguatinga')">Exemplo 2</button>
+                    <div class="result-area" id="natural-result"></div>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>Busca de Candidatos</h3>
+                    <input type="text" class="query-input" id="search-query" 
+                           placeholder="Digite o nome do candidato">
+                    <button class="btn" onclick="buscarCandidato()">Buscar</button>
+                    <button class="btn btn-warning" onclick="exemploConsulta('Francisco Domingos')">Francisco</button>
+                    <button class="btn btn-warning" onclick="exemploConsulta('Fábio Felix')">Fábio</button>
+                    <div class="result-area" id="search-result"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="whatsapp-demo">
+            <h2>📱 Integração WhatsApp</h2>
+            <p>Faça consultas eleitorais diretamente pelo WhatsApp usando linguagem natural!</p>
+            
+            <div class="whatsapp-examples">
+                <div class="whatsapp-example">
+                    <h4>💬 "Top 5 candidatos"</h4>
+                    <p>Retorna os 5 candidatos mais votados com números e votos</p>
+                </div>
+                <div class="whatsapp-example">
+                    <h4>💬 "Candidatos em Ceilândia"</h4>
+                    <p>Lista os mais votados na região automaticamente</p>
+                </div>
+                <div class="whatsapp-example">
+                    <h4>💬 "Buscar João Silva"</h4>
+                    <p>Encontra candidatos com nome similar</p>
+                </div>
+                <div class="whatsapp-example">
+                    <h4>💬 "Estatísticas gerais"</h4>
+                    <p>Mostra resumo completo das eleições</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="endpoints">
+            <h2>🔗 Endpoints da API</h2>
+            <div class="endpoint-list">
+                <div class="endpoint get">
+                    <span class="method get">GET</span>
+                    <span>/api/status</span> - Status da API
+                </div>
+                <div class="endpoint get">
+                    <span class="method get">GET</span>
+                    <span>/api/candidatos/mais-votados</span> - Top candidatos
+                </div>
+                <div class="endpoint get">
+                    <span class="method get">GET</span>
+                    <span>/api/candidatos/buscar?nome=X</span> - Buscar candidato
+                </div>
+                <div class="endpoint get">
+                    <span class="method get">GET</span>
+                    <span>/api/zona/{numero}/candidatos</span> - Candidatos por zona
+                </div>
+                <div class="endpoint get">
+                    <span class="method get">GET</span>
+                    <span>/api/estatisticas</span> - Estatísticas gerais
+                </div>
+                <div class="endpoint post">
+                    <span class="method post">POST</span>
+                    <span>/api/consulta-natural</span> - Consulta com IA
+                </div>
+                <div class="endpoint get">
+                    <span class="method get">GET</span>
+                    <span>/api/whatsapp/status</span> - Status WhatsApp
+                </div>
+                <div class="endpoint post">
+                    <span class="method post">POST</span>
+                    <span>/api/whatsapp/webhook</span> - Webhook WhatsApp
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Carregar estatísticas ao inicializar
+        window.onload = function() {
+            carregarEstatisticas();
+        };
+        
+        async function carregarEstatisticas() {
+            try {
+                const response = await fetch('/api/estatisticas');
+                const data = await response.json();
+                
+                if (data.estatisticas) {
+                    const stats = data.estatisticas;
+                    document.getElementById('total-votos').textContent = 
+                        stats.total_votos ? stats.total_votos.toLocaleString('pt-BR') : '-';
+                    document.getElementById('total-candidatos').textContent = 
+                        stats.total_candidatos || '-';
+                    document.getElementById('total-zonas').textContent = 
+                        stats.total_zonas || '-';
+                    document.getElementById('total-secoes').textContent = 
+                        stats.total_secoes ? stats.total_secoes.toLocaleString('pt-BR') : '-';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+        
+        async function consultaNatural() {
+            const query = document.getElementById('natural-query').value.trim();
+            if (!query) {
+                alert('Digite uma pergunta!');
+                return;
+            }
+            
+            const resultArea = document.getElementById('natural-result');
+            resultArea.textContent = 'Processando com IA...';
+            
+            try {
+                const response = await fetch('/api/consulta-natural', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pergunta: query })
+                });
+                
+                const data = await response.json();
+                
+                let resultado = `PERGUNTA: ${query}\n\n`;
+                
+                if (data.resposta_natural) {
+                    resultado += `RESPOSTA IA: ${data.resposta_natural}\n\n`;
+                }
+                
+                if (data.analise_ia) {
+                    resultado += `ANÁLISE:\n`;
+                    resultado += `- Tipo: ${data.analise_ia.tipo_consulta}\n`;
+                    resultado += `- Parâmetros: ${JSON.stringify(data.analise_ia.parametros, null, 2)}\n\n`;
+                }
+                
+                if (data.dados && data.dados.candidatos) {
+                    resultado += `RESULTADOS (${data.dados.candidatos.length}):\n`;
+                    data.dados.candidatos.slice(0, 5).forEach((candidato, i) => {
+                        resultado += `${i+1}. ${candidato.nome}\n`;
+                        resultado += `   Votos: ${candidato.total_votos.toLocaleString('pt-BR')}\n`;
+                        resultado += `   Número: ${candidato.numero}\n\n`;
+                    });
+                }
+                
+                resultArea.textContent = resultado;
+                
+            } catch (error) {
+                resultArea.textContent = `Erro: ${error.message}`;
+            }
+        }
+        
+        async function buscarCandidato() {
+            const query = document.getElementById('search-query').value.trim();
+            if (!query) {
+                alert('Digite o nome do candidato!');
+                return;
+            }
+            
+            const resultArea = document.getElementById('search-result');
+            resultArea.textContent = 'Buscando...';
+            
+            try {
+                const response = await fetch(`/api/candidatos/buscar?nome=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                let resultado = `BUSCA: ${query}\n\n`;
+                
+                if (data.candidatos && data.candidatos.length > 0) {
+                    resultado += `ENCONTRADOS (${data.candidatos.length}):\n\n`;
+                    data.candidatos.forEach((candidato, i) => {
+                        resultado += `${i+1}. ${candidato.nome}\n`;
+                        resultado += `   Votos: ${candidato.total_votos ? candidato.total_votos.toLocaleString('pt-BR') : '0'}\n`;
+                        resultado += `   Número: ${candidato.numero}\n`;
+                        resultado += `   Zonas: ${candidato.zonas_com_votos || 0}\n\n`;
+                    });
+                } else {
+                    resultado += 'Nenhum candidato encontrado.';
+                }
+                
+                resultArea.textContent = resultado;
+                
+            } catch (error) {
+                resultArea.textContent = `Erro: ${error.message}`;
+            }
+        }
+        
+        function exemploConsulta(pergunta) {
+            if (pergunta.includes('Francisco') || pergunta.includes('Fábio')) {
+                document.getElementById('search-query').value = pergunta;
+                buscarCandidato();
+            } else {
+                document.getElementById('natural-query').value = pergunta;
+                consultaNatural();
+            }
+        }
+    </script>
+</body>
+</html>
+
