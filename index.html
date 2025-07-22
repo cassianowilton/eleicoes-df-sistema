@@ -222,6 +222,7 @@
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script>
         // Função para fazer consulta à API
         async function fazerConsulta() {
@@ -238,25 +239,20 @@
             resultadoDiv.style.display = 'block';
             respostaDiv.innerHTML = '⏳ Processando consulta...';
             
-            try {
-                const response = await fetch('/api/consulta', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ pergunta: pergunta })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    respostaDiv.innerHTML = data.resposta.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                } else {
-                    respostaDiv.innerHTML = '❌ Erro: ' + (data.error || 'Erro desconhecido');
+            // Simular delay de API
+            setTimeout(() => {
+                try {
+                    const data = window.eleicoesAPI.consulta(pergunta);
+                    
+                    if (data.success) {
+                        respostaDiv.innerHTML = data.resposta.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    } else {
+                        respostaDiv.innerHTML = '❌ Erro: ' + (data.error || 'Erro desconhecido');
+                    }
+                } catch (error) {
+                    respostaDiv.innerHTML = '❌ Erro de processamento: ' + error.message;
                 }
-            } catch (error) {
-                respostaDiv.innerHTML = '❌ Erro de conexão: ' + error.message;
-            }
+            }, 800);
         }
         
         // Permitir Enter para consultar
