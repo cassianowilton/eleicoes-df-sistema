@@ -3,375 +3,590 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Eleições DF 2022</title>
+    <title>IA Eleições DF 2022</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: white;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
         }
-        .header { 
-            text-align: center; 
-            margin-bottom: 40px; 
-            padding: 40px 0;
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100vh;
         }
-        .header h1 { 
-            font-size: 3em; 
-            margin-bottom: 10px; 
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        .header p { 
-            font-size: 1.2em; 
-            opacity: 0.9; 
-        }
-        .stats { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-            gap: 20px; 
-            margin: 40px 0; 
-        }
-        .stat-card { 
-            background: rgba(255,255,255,0.15); 
-            padding: 30px; 
-            border-radius: 15px; 
-            text-align: center; 
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: transform 0.3s ease;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        .stat-number { 
-            font-size: 2.5em; 
-            font-weight: bold; 
-            margin-bottom: 10px; 
-            color: #FFD700;
-        }
-        .stat-label { 
-            font-size: 1.1em; 
-            opacity: 0.9; 
-        }
-        .section { 
-            background: rgba(255,255,255,0.1); 
-            padding: 40px; 
-            border-radius: 15px; 
-            margin: 30px 0; 
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .section h2 { 
-            font-size: 2em; 
-            margin-bottom: 20px; 
-            text-align: center;
-        }
-        .section h3 { 
-            font-size: 1.5em; 
-            margin: 20px 0 15px 0; 
-            color: #FFD700;
-        }
-        .section p { 
-            font-size: 1.1em; 
-            line-height: 1.6; 
-            margin-bottom: 10px; 
-        }
-        .btn { 
-            background: #28a745; 
-            color: white; 
-            padding: 15px 30px; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            margin: 10px; 
-            text-decoration: none; 
-            display: inline-block; 
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .btn:hover { 
-            background: #218838; 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-        .btn-admin { 
-            background: #007bff; 
-        }
-        .btn-admin:hover { 
-            background: #0056b3; 
-        }
-        .status { 
-            background: rgba(40, 167, 69, 0.2); 
-            border: 1px solid #28a745; 
-            padding: 20px; 
-            border-radius: 10px; 
-            margin: 20px 0; 
-        }
-        .footer {
-            text-align: center;
-            margin-top: 40px;
+
+        /* Sidebar Histórico */
+        .sidebar {
+            background: rgba(0, 0, 0, 0.3);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             padding: 20px;
-            opacity: 0.8;
+            overflow-y: auto;
         }
+
+        .sidebar h3 {
+            color: #64b5f6;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #64b5f6;
+        }
+
+        .history-item.active {
+            background: rgba(100, 181, 246, 0.2);
+            border-color: #64b5f6;
+        }
+
+        .clear-history {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            color: #ff6b6b;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .clear-history:hover {
+            background: rgba(244, 67, 54, 0.3);
+        }
+
+        /* Área Principal */
+        .main-area {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #64b5f6;
+        }
+
+        .admin-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e0e0e0;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #64b5f6;
+            color: #64b5f6;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin: auto;
+            max-width: 600px;
+        }
+
+        .welcome-message h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            background: linear-gradient(45deg, #64b5f6, #81c784);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-message p {
+            font-size: 18px;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+        }
+
+        .chat-messages {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(45deg, #64b5f6, #42a5f5);
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(45deg, #81c784, #66bb6a);
+        }
+
+        .message-content {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px 20px;
+            max-width: 70%;
+            line-height: 1.6;
+        }
+
+        .message.user .message-content {
+            background: rgba(100, 181, 246, 0.2);
+            border-color: rgba(100, 181, 246, 0.3);
+        }
+
+        .message.ai .message-content {
+            background: rgba(129, 199, 132, 0.2);
+            border-color: rgba(129, 199, 132, 0.3);
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .input-field {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: #e0e0e0;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: #64b5f6;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .input-field::placeholder {
+            color: #888;
+        }
+
+        .send-btn {
+            background: linear-gradient(45deg, #64b5f6, #42a5f5);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 24px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(100, 181, 246, 0.3);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #64b5f6;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .loading-dot {
+            width: 6px;
+            height: 6px;
+            background: #64b5f6;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 80%, 100% { opacity: 0.3; }
+            40% { opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .header h1 { font-size: 2em; }
-            .stat-card { padding: 20px; }
-            .section { padding: 20px; }
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .chat-area {
+                padding: 20px;
+            }
+            
+            .input-area {
+                padding: 20px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🗳️ Sistema Eleições DF 2022</h1>
-            <p>Sistema Inteligente de Análise de Dados Eleitorais</p>
-        </div>
-
-        <div class="status">
-            <h3>✅ Sistema Operacional</h3>
-            <p>✅ Deploy realizado com sucesso no Vercel</p>
-            <p>✅ Banco de dados Supabase conectado</p>
-            <p>✅ 1.535.545 votos processados e disponíveis</p>
-        </div>
-
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number">1.535.545</div>
-                <div class="stat-label">Total de Votos</div>
+        <!-- Sidebar Histórico -->
+        <div class="sidebar">
+            <h3>📋 Histórico de Consultas</h3>
+            <div id="historyList">
+                <!-- Histórico será carregado aqui -->
             </div>
-            <div class="stat-card">
-                <div class="stat-number">590</div>
-                <div class="stat-label">Candidatos</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">19</div>
-                <div class="stat-label">Zonas Eleitorais</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">6.748</div>
-                <div class="stat-label">Seções</div>
+            <div class="clear-history" onclick="clearHistory()">
+                🗑️ Limpar Histórico
             </div>
         </div>
 
-        <div class="section">
-            <h2>🚀 Sistema Funcionando!</h2>
-            <p>O sistema de análise de dados eleitorais está operacional com todas as funcionalidades básicas implementadas.</p>
-            
-            <div style="text-align: center; margin-top: 30px;">
-                <input type="text" id="pergunta" placeholder="Ex: Top 5 candidatos mais votados" style="width: 60%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; font-size: 16px; margin-right: 10px;">
-                <button class="btn" onclick="fazerConsulta()">🔍 Consultar</button>
-                <br><br>
-                <a href="admin.html" class="btn btn-admin">🎛️ Painel Administrativo</a>
-                <a href="/api/status" class="btn">📊 Status API</a>
+        <!-- Área Principal -->
+        <div class="main-area">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">
+                    🤖 IA Eleições DF 2022
+                </div>
+                <a href="admin.html" class="admin-btn">
+                    ⚙️ Admin
+                </a>
             </div>
-            
-            <div id="resultado" style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; display: none;">
-                <h3>📋 Resultado:</h3>
-                <div id="resposta"></div>
+
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <!-- Mensagem de Boas-vindas -->
+                <div class="welcome-message" id="welcomeMessage">
+                    <h1>Assistente Inteligente</h1>
+                    <p>Faça perguntas sobre as eleições do DF 2022. Posso ajudar com dados de candidatos, votos por região, rankings e muito mais!</p>
+                </div>
+
+                <!-- Mensagens do Chat -->
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Mensagens aparecerão aqui -->
+                </div>
+
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <span>IA processando</span>
+                    <div class="loading-dots">
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="section">
-            <h2>📊 Dados Disponíveis</h2>
-            
-            <h3>🏆 Top 5 Candidatos Mais Votados:</h3>
-            <p><strong>1. VOTO BRANCO:</strong> 107.572 votos</p>
-            <p><strong>2. FRANCISCO DOMINGOS DOS SANTOS:</strong> 43.854 votos</p>
-            <p><strong>3. FÁBIO FELIX SILVEIRA:</strong> 40.775 votos</p>
-            <p><strong>4. Partido Liberal:</strong> 32.408 votos</p>
-            <p><strong>5. MARCOS MARTINS MACHADO:</strong> 31.993 votos</p>
-
-            <h3>📍 Cobertura Geográfica:</h3>
-            <p>✅ Todas as 19 zonas eleitorais do DF</p>
-            <p>✅ 6.748 seções eleitorais</p>
-            <p>✅ 107 locais de votação</p>
-            <p>✅ Dados por região administrativa</p>
-        </div>
-
-        <div class="section">
-            <h2>🔧 Funcionalidades Implementadas</h2>
-            
-            <h3>✅ Migração de Dados:</h3>
-            <p>• Planilha CSV convertida para banco PostgreSQL (Supabase)</p>
-            <p>• 605.232 registros de votação migrados</p>
-            <p>• Estrutura otimizada com 5 tabelas relacionais</p>
-
-            <h3>✅ Infraestrutura:</h3>
-            <p>• Deploy automático via Vercel</p>
-            <p>• Banco de dados Supabase configurado</p>
-            <p>• Repositório GitHub público</p>
-            <p>• Sistema preparado para APIs e WhatsApp</p>
-
-            <h3>🔄 Próximas Implementações:</h3>
-            <p>• API REST para consultas</p>
-            <p>• Integração com IA (OpenAI/DeepSeek)</p>
-            <p>• WhatsApp via Evolution API</p>
-            <p>• Painel administrativo completo</p>
-        </div>
-
-        <div class="footer">
-            <p>Desenvolvido por SD Redes • Sistema Eleições DF 2022</p>
-            <p>Dados públicos eleitorais • Análise transparente</p>
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <input 
+                        type="text" 
+                        id="userInput" 
+                        class="input-field" 
+                        placeholder="Digite sua pergunta sobre as eleições DF 2022..."
+                        onkeypress="handleKeyPress(event)"
+                    >
+                    <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                        🚀 Enviar
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="api.js"></script>
     <script>
-        // Função para fazer consulta à API com IA real
-        async function fazerConsulta() {
-            const pergunta = document.getElementById('pergunta').value.trim();
-            const resultadoDiv = document.getElementById('resultado');
-            const respostaDiv = document.getElementById('resposta');
-            
-            if (!pergunta) {
-                alert('Por favor, digite uma pergunta!');
-                return;
+        let chatHistory = [];
+        let currentSessionId = Date.now();
+
+        // Carregar histórico ao iniciar
+        window.onload = function() {
+            loadHistory();
+        };
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
             }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Desabilitar input
+            input.disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+            
+            // Adicionar mensagem do usuário
+            addMessage('user', message);
+            
+            // Limpar input
+            input.value = '';
             
             // Mostrar loading
-            resultadoDiv.style.display = 'block';
-            respostaDiv.innerHTML = '🤖 Processando consulta com IA...';
+            showLoading();
             
+            // Ocultar mensagem de boas-vindas
+            hideWelcomeMessage();
+
             try {
-                // Verificar se API está carregada
-                if (typeof window.eleicoesAPI === 'undefined') {
-                    // Carregar API inline se não estiver disponível
-                    await loadAPIInline();
-                }
+                // Chamar API
+                const api = new EleicaoAPI();
+                const response = await api.consulta(message);
                 
-                // Chamar API com IA real (async)
-                const data = await window.eleicoesAPI.consulta(pergunta);
+                // Ocultar loading
+                hideLoading();
                 
-                if (data.success) {
-                    // Mostrar resultado com informações do provider
-                    let providerInfo = '';
-                    if (data.provider === 'openai') {
-                        providerInfo = '<br><small style="color: #10b981;">🤖 Processado com OpenAI</small>';
-                    } else if (data.provider === 'deepseek') {
-                        providerInfo = '<br><small style="color: #8b5cf6;">🧠 Processado com DeepSeek</small>';
-                    } else if (data.provider === 'local') {
-                        providerInfo = '<br><small style="color: #f59e0b;">💻 Processado localmente</small>';
-                    }
+                // Adicionar resposta da IA
+                if (response.success) {
+                    addMessage('ai', response.resposta);
                     
-                    respostaDiv.innerHTML = data.resposta.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') + providerInfo;
+                    // Salvar no histórico
+                    saveToHistory(message, response.resposta);
                 } else {
-                    respostaDiv.innerHTML = '❌ Erro: ' + (data.error || 'Erro desconhecido');
+                    addMessage('ai', '❌ Erro: ' + (response.error || 'Não foi possível processar sua pergunta.'));
                 }
+                
             } catch (error) {
-                console.error('Erro na consulta:', error);
-                respostaDiv.innerHTML = '❌ Erro de processamento: ' + error.message;
+                hideLoading();
+                addMessage('ai', '❌ Erro de conexão: ' + error.message);
+            }
+            
+            // Reabilitar input
+            input.disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+            input.focus();
+        }
+
+        function addMessage(type, content) {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.style.display = 'flex';
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = type === 'user' ? '👤' : '🤖';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">${formatMessage(content)}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll para a última mensagem
+            messageDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function formatMessage(content) {
+            // Converter markdown básico para HTML
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function hideWelcomeMessage() {
+            document.getElementById('welcomeMessage').style.display = 'none';
+        }
+
+        function saveToHistory(question, answer) {
+            const historyItem = {
+                id: Date.now(),
+                question: question,
+                answer: answer,
+                timestamp: new Date().toLocaleString('pt-BR')
+            };
+            
+            chatHistory.unshift(historyItem);
+            
+            // Manter apenas os últimos 20 itens
+            if (chatHistory.length > 20) {
+                chatHistory = chatHistory.slice(0, 20);
+            }
+            
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+            updateHistoryDisplay();
+        }
+
+        function loadHistory() {
+            const saved = localStorage.getItem('chatHistory');
+            if (saved) {
+                chatHistory = JSON.parse(saved);
+                updateHistoryDisplay();
             }
         }
 
-        // Função para carregar API inline se necessário
-        async function loadAPIInline() {
-            // Dados dos candidatos (simulação dos dados reais)
-            const candidatos = [
-                { nome: "VOTO BRANCO", votos: 107572, zona: "todas" },
-                { nome: "FRANCISCO DOMINGOS DOS SANTOS", votos: 43854, zona: "todas" },
-                { nome: "FÁBIO FELIX SILVEIRA", votos: 40775, zona: "todas", ceilandia: 3406 },
-                { nome: "Partido Liberal", votos: 32408, zona: "todas" },
-                { nome: "MARCOS MARTINS MACHADO", votos: 31993, zona: "todas" }
-            ];
-
-            // Mapeamento de regiões para zonas
-            const regioes = {
-                'ceilândia': 9, 'ceilandia': 9,
-                'taguatinga': 3, 'gama': 2,
-                'brasília': 1, 'plano piloto': 1,
-                'samambaia': 8, 'santa maria': 10
-            };
-
-            window.eleicoesAPI = {
-                async consulta(pergunta) {
-                    try {
-                        const perguntaLower = pergunta.toLowerCase();
-                        
-                        // Consulta específica: votos por candidato e região
-                        if (perguntaLower.includes('quantos votos') && perguntaLower.includes('fábio felix') && perguntaLower.includes('ceilândia')) {
-                            return {
-                                success: true,
-                                resposta: "**Fábio Felix Silveira em Ceilândia:**\\n\\n• **3.406 votos** na região de Ceilândia (Zona Eleitoral 9)\\n• Representa **8,4%** dos seus votos totais (40.775)\\n• **3º candidato mais votado** na região\\n\\n**Detalhes:**\\n• Zona Eleitoral: 9 (Ceilândia)\\n• Posição geral: 3º lugar no DF\\n• Total de votos no DF: 40.775",
-                                provider: 'local'
-                            };
-                        }
-                        
-                        // Outras consultas existentes...
-                        if (perguntaLower.includes('top') || perguntaLower.includes('mais votados')) {
-                            const limite = perguntaLower.match(/(\d+)/) ? parseInt(perguntaLower.match(/(\d+)/)[1]) : 5;
-                            const topCandidatos = candidatos.slice(0, limite);
-                            
-                            let resposta = `**Top ${limite} Candidatos Mais Votados:**\\n\\n`;
-                            topCandidatos.forEach((candidato, index) => {
-                                resposta += `**${index + 1}. ${candidato.nome}:** ${candidato.votos.toLocaleString()} votos\\n`;
-                            });
-                            
-                            return { success: true, resposta, provider: 'local' };
-                        }
-                        
-                        // Busca por nome
-                        if (perguntaLower.includes('buscar') || perguntaLower.includes('francisco') || perguntaLower.includes('fábio')) {
-                            const candidato = candidatos.find(c => 
-                                perguntaLower.includes(c.nome.toLowerCase().split(' ')[0].toLowerCase())
-                            );
-                            
-                            if (candidato) {
-                                return {
-                                    success: true,
-                                    resposta: `**${candidato.nome}:**\\n\\n• **${candidato.votos.toLocaleString()} votos** totais\\n• Posição no ranking geral\\n• Dados disponíveis por zona eleitoral`,
-                                    provider: 'local'
-                                };
-                            }
-                        }
-                        
-                        // Estatísticas gerais
-                        if (perguntaLower.includes('estatísticas') || perguntaLower.includes('geral')) {
-                            return {
-                                success: true,
-                                resposta: "**Estatísticas Gerais - Eleições DF 2022:**\\n\\n• **1.535.545** votos totais\\n• **590** candidatos\\n• **19** zonas eleitorais\\n• **6.748** seções eleitorais\\n• **107** locais de votação\\n\\n**Maior votação:** VOTO BRANCO (107.572 votos)",
-                                provider: 'local'
-                            };
-                        }
-                        
-                        return {
-                            success: false,
-                            error: 'Consulta não reconhecida. Tente: "Top 5 candidatos", "Buscar [nome]", "Estatísticas gerais"'
-                        };
-                        
-                    } catch (error) {
-                        return {
-                            success: false,
-                            error: error.message
-                        };
-                    }
-                }
-            };
-        }
-
-        // Permitir Enter para fazer consulta
-        document.getElementById('pergunta').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                fazerConsulta();
-            }
-        });
-
-        // Animação de entrada
-        document.addEventListener('DOMContentLoaded', function() {
-            const sections = document.querySelectorAll('.hero, .search-section, .stats-grid, .info-section');
-            sections.forEach((section, index) => {
-                setTimeout(() => {
-                    section.style.opacity = '1';
-                    section.style.transform = 'translateY(0)';
-                }, index * 200);
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            chatHistory.forEach(item => {
+                const historyDiv = document.createElement('div');
+                historyDiv.className = 'history-item';
+                historyDiv.onclick = () => loadHistoryItem(item);
+                
+                const preview = item.question.length > 50 
+                    ? item.question.substring(0, 50) + '...'
+                    : item.question;
+                
+                historyDiv.innerHTML = `
+                    <div style="font-weight: 500; margin-bottom: 4px;">${preview}</div>
+                    <div style="font-size: 12px; color: #888;">${item.timestamp}</div>
+                `;
+                
+                historyList.appendChild(historyDiv);
             });
-        });
+        }
+
+        function loadHistoryItem(item) {
+            // Limpar chat atual
+            document.getElementById('chatMessages').innerHTML = '';
+            hideWelcomeMessage();
+            
+            // Carregar conversa
+            addMessage('user', item.question);
+            addMessage('ai', item.answer);
+        }
+
+        function clearHistory() {
+            if (confirm('Tem certeza que deseja limpar todo o histórico?')) {
+                chatHistory = [];
+                localStorage.removeItem('chatHistory');
+                updateHistoryDisplay();
+                
+                // Limpar chat atual
+                document.getElementById('chatMessages').innerHTML = '';
+                document.getElementById('chatMessages').style.display = 'none';
+                document.getElementById('welcomeMessage').style.display = 'block';
+            }
+        }
+
+        // Focar no input ao carregar
+        document.getElementById('userInput').focus();
     </script>
 </body>
 </html>
