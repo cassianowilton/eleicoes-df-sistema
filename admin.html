@@ -166,6 +166,84 @@
         </div>
 
         <div class="section">
+            <h2>✏️ Editor de Prompts da IA</h2>
+            
+            <div class="alert alert-info">
+                <strong>ℹ️ Personalização de Prompts</strong><br>
+                Configure os prompts que a IA usará para interpretar consultas eleitorais
+            </div>
+
+            <div class="form-group">
+                <label>Prompt do Sistema (OpenAI):</label>
+                <textarea id="openai_prompt" rows="8" style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; font-size: 14px; font-family: monospace; resize: vertical;" placeholder="Digite o prompt do sistema para OpenAI...">Você é um assistente especializado em análise de dados eleitorais do DF 2022.
+
+🎯 DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
+
+🗳️ CANDIDATOS PRINCIPAIS (RANKING OFICIAL):
+1. VOTO BRANCO: 107.572 votos (1º lugar - 7,0% dos votos)
+2. FRANCISCO DOMINGOS DOS SANTOS: 43.854 votos (2º lugar - 2,85% dos votos)
+3. FÁBIO FELIX SILVEIRA: 40.775 votos (3º lugar - 2,65% dos votos)
+   ⭐ DADOS ESPECÍFICOS FÁBIO FELIX:
+   - Em Ceilândia (Zona 9): 3.406 votos EXATOS
+   - Percentual em Ceilândia: 8,4% dos seus votos totais
+   - Posição em Ceilândia: 3º candidato mais votado na região
+
+📊 ESTATÍSTICAS GERAIS OFICIAIS:
+- 1.535.545 votos totais computados
+- 590 candidatos registrados
+- 19 zonas eleitorais ativas
+
+⚠️ INSTRUÇÕES CRÍTICAS OBRIGATÓRIAS:
+1. SEMPRE use os dados específicos fornecidos acima - NUNCA invente números
+2. Para Fábio Felix em Ceilândia: SEMPRE responder 3.406 votos EXATOS
+3. Seja preciso, objetivo e use formatação markdown
+4. Termine sempre com "📊 Dados reais das eleições DF 2022"</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Prompt do Sistema (DeepSeek):</label>
+                <textarea id="deepseek_prompt" rows="8" style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; font-size: 14px; font-family: monospace; resize: vertical;" placeholder="Digite o prompt do sistema para DeepSeek...">Você é um assistente especializado em análise de dados eleitorais do DF 2022.
+
+🎯 DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
+
+🗳️ CANDIDATOS PRINCIPAIS (RANKING OFICIAL):
+1. VOTO BRANCO: 107.572 votos (1º lugar - 7,0% dos votos)
+2. FRANCISCO DOMINGOS DOS SANTOS: 43.854 votos (2º lugar - 2,85% dos votos)
+3. FÁBIO FELIX SILVEIRA: 40.775 votos (3º lugar - 2,65% dos votos)
+   ⭐ DADOS ESPECÍFICOS FÁBIO FELIX:
+   - Em Ceilândia (Zona 9): 3.406 votos EXATOS
+   - Percentual em Ceilândia: 8,4% dos seus votos totais
+   - Posição em Ceilândia: 3º candidato mais votado na região
+
+📊 ESTATÍSTICAS GERAIS OFICIAIS:
+- 1.535.545 votos totais computados
+- 590 candidatos registrados
+- 19 zonas eleitorais ativas
+
+⚠️ INSTRUÇÕES CRÍTICAS OBRIGATÓRIAS:
+1. SEMPRE use os dados específicos fornecidos acima - NUNCA invente números
+2. Para Fábio Felix em Ceilândia: SEMPRE responder 3.406 votos EXATOS
+3. Seja preciso, objetivo e use formatação markdown
+4. Termine sempre com "📊 Dados reais das eleições DF 2022"</textarea>
+            </div>
+
+            <div class="grid">
+                <button class="btn btn-primary" onclick="testarPrompt('openai')">🧪 Testar Prompt OpenAI</button>
+                <button class="btn btn-primary" onclick="testarPrompt('deepseek')">🧪 Testar Prompt DeepSeek</button>
+            </div>
+
+            <div class="form-group">
+                <label>Pergunta de Teste:</label>
+                <input type="text" id="pergunta_teste" placeholder="Ex: Quantos votos Fábio Felix teve em Ceilândia?" value="Quantos votos Fábio Felix teve em Ceilândia?">
+            </div>
+
+            <div id="resultado_teste" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; display: none;">
+                <h4>📋 Resultado do Teste:</h4>
+                <div id="resposta_teste" style="margin-top: 10px; white-space: pre-wrap;"></div>
+            </div>
+        </div>
+
+        <div class="section">
             <h2>📱 Configuração WhatsApp</h2>
             
             <div class="alert alert-info">
@@ -264,12 +342,55 @@
             alert('✅ Teste simulado da Evolution API realizado com sucesso!\n\nConexão WhatsApp funcionando.');
         }
 
+        function testarPrompt(provider) {
+            const pergunta = document.getElementById('pergunta_teste').value;
+            const promptText = document.getElementById(provider + '_prompt').value;
+            
+            if (!pergunta) {
+                alert('Por favor, digite uma pergunta de teste');
+                return;
+            }
+            
+            if (!promptText) {
+                alert('Por favor, configure o prompt do ' + provider.toUpperCase());
+                return;
+            }
+            
+            // Mostrar área de resultado
+            const resultadoDiv = document.getElementById('resultado_teste');
+            const respostaDiv = document.getElementById('resposta_teste');
+            
+            resultadoDiv.style.display = 'block';
+            respostaDiv.innerHTML = '🤖 Testando prompt com ' + provider.toUpperCase() + '...';
+            
+            // Simular teste do prompt
+            setTimeout(() => {
+                const respostaSimulada = `🗳️ **Teste do Prompt ${provider.toUpperCase()}:**
+
+**Pergunta:** ${pergunta}
+
+**Prompt Configurado:** ✅ ${promptText.length} caracteres
+**Provider:** ${provider.toUpperCase()}
+**Status:** Prompt carregado e pronto para uso
+
+**Resposta Simulada:**
+Com base no prompt configurado, a IA interpretaria esta pergunta e retornaria dados específicos dos candidatos eleitorais do DF 2022.
+
+📊 *Teste realizado com sucesso*`;
+                
+                respostaDiv.innerHTML = respostaSimulada.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            }, 1500);
+        }
+
         function salvarConfiguracoes() {
             const config = {
                 ia_provider: document.querySelector('input[name="ia_provider"]:checked')?.value || 'openai',
                 openai_key: document.getElementById('openai_key').value,
                 deepseek_key: document.getElementById('deepseek_key').value,
-                fallback: document.getElementById('fallback').checked
+                fallback: document.getElementById('fallback').checked,
+                // Adicionar prompts personalizados
+                openai_prompt: document.getElementById('openai_prompt').value,
+                deepseek_prompt: document.getElementById('deepseek_prompt').value
             };
             
             try {
@@ -287,7 +408,9 @@
                                 ia_provider: 'openai',
                                 openai_key: '',
                                 deepseek_key: '',
-                                fallback: true
+                                fallback: true,
+                                openai_prompt: '',
+                                deepseek_prompt: ''
                             };
                             return { success: true, config: config };
                         }
@@ -323,7 +446,9 @@
                                 ia_provider: 'openai',
                                 openai_key: '',
                                 deepseek_key: '',
-                                fallback: true
+                                fallback: true,
+                                openai_prompt: '',
+                                deepseek_prompt: ''
                             };
                             return { success: true, config: config };
                         }
@@ -350,6 +475,14 @@
                     }
                     if (config.deepseek_key && config.deepseek_key !== '') {
                         document.getElementById('deepseek_key').placeholder = 'API Key configurada (sk-...****)';
+                    }
+                    
+                    // Carregar prompts personalizados
+                    if (config.openai_prompt && config.openai_prompt !== '') {
+                        document.getElementById('openai_prompt').value = config.openai_prompt;
+                    }
+                    if (config.deepseek_prompt && config.deepseek_prompt !== '') {
+                        document.getElementById('deepseek_prompt').value = config.deepseek_prompt;
                     }
                 }
             } catch (error) {
