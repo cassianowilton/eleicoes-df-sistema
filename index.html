@@ -165,8 +165,16 @@
             <p>O sistema de análise de dados eleitorais está operacional com todas as funcionalidades básicas implementadas.</p>
             
             <div style="text-align: center; margin-top: 30px;">
+                <input type="text" id="pergunta" placeholder="Ex: Top 5 candidatos mais votados" style="width: 60%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; font-size: 16px; margin-right: 10px;">
+                <button class="btn" onclick="fazerConsulta()">🔍 Consultar</button>
+                <br><br>
                 <a href="admin.html" class="btn btn-admin">🎛️ Painel Administrativo</a>
-                <a href="#" class="btn" onclick="alert('API em desenvolvimento - dados disponíveis via Supabase')">📊 Testar API</a>
+                <a href="/api/status" class="btn">📊 Status API</a>
+            </div>
+            
+            <div id="resultado" style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; display: none;">
+                <h3>📋 Resultado:</h3>
+                <div id="resposta"></div>
             </div>
         </div>
 
@@ -215,6 +223,49 @@
     </div>
 
     <script>
+        // Função para fazer consulta à API
+        async function fazerConsulta() {
+            const pergunta = document.getElementById('pergunta').value.trim();
+            const resultadoDiv = document.getElementById('resultado');
+            const respostaDiv = document.getElementById('resposta');
+            
+            if (!pergunta) {
+                alert('Por favor, digite sua pergunta');
+                return;
+            }
+            
+            // Mostrar loading
+            resultadoDiv.style.display = 'block';
+            respostaDiv.innerHTML = '⏳ Processando consulta...';
+            
+            try {
+                const response = await fetch('/api/consulta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pergunta: pergunta })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    respostaDiv.innerHTML = data.resposta.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                } else {
+                    respostaDiv.innerHTML = '❌ Erro: ' + (data.error || 'Erro desconhecido');
+                }
+            } catch (error) {
+                respostaDiv.innerHTML = '❌ Erro de conexão: ' + error.message;
+            }
+        }
+        
+        // Permitir Enter para consultar
+        document.getElementById('pergunta').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fazerConsulta();
+            }
+        });
+
         // Animação suave para os cards
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.stat-card');
