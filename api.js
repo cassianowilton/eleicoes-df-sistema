@@ -1,4 +1,4 @@
-// API simulada com dados reais das eleições DF 2022
+// API com integração real de IA (OpenAI e DeepSeek)
 class EleicoesAPI {
     constructor() {
         // Dados simulados baseados nos dados reais migrados
@@ -23,6 +23,30 @@ class EleicoesAPI {
             locais_votacao: 107
         };
         
+        // Mapeamento de regiões para zonas
+        this.regioes = {
+            'ceilândia': 9,
+            'taguatinga': 3,
+            'brasília': 1,
+            'plano piloto': 1,
+            'gama': 2,
+            'sobradinho': 4,
+            'planaltina': 5,
+            'paranoá': 6,
+            'núcleo bandeirante': 7,
+            'riacho fundo': 8,
+            'santa maria': 10,
+            'são sebastião': 11,
+            'recanto das emas': 12,
+            'lago sul': 13,
+            'riacho fundo ii': 14,
+            'samambaia': 15,
+            'águas claras': 16,
+            'vicente pires': 17,
+            'sudoeste': 18,
+            'varjão': 19
+        };
+        
         // Configurações admin
         this.config = this.loadConfig();
     }
@@ -43,7 +67,203 @@ class EleicoesAPI {
         return true;
     }
     
-    consulta(pergunta) {
+    // Função para chamar API OpenAI
+    async callOpenAI(prompt) {
+        const config = this.loadConfig();
+        if (!config.openai_key) {
+            throw new Error('API Key OpenAI não configurada');
+        }
+        
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${config.openai_key}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o-mini',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `Você é um assistente especializado em análise de dados eleitorais do DF 2022.
+                            
+DADOS DISPONÍVEIS:
+- 1.535.545 votos totais
+- 590 candidatos
+- 19 zonas eleitorais
+- 6.748 seções eleitorais
+
+CANDIDATOS MAIS VOTADOS:
+1. VOTO BRANCO: 107.572 votos
+2. FRANCISCO DOMINGOS DOS SANTOS: 43.854 votos  
+3. FÁBIO FELIX SILVEIRA: 40.775 votos
+4. Partido Liberal: 32.408 votos
+5. MARCOS MARTINS MACHADO: 31.993 votos
+
+MAPEAMENTO REGIÕES → ZONAS:
+- Ceilândia: Zona 9
+- Taguatinga: Zona 3  
+- Brasília/Plano Piloto: Zona 1
+- Gama: Zona 2
+- Samambaia: Zona 15
+
+INSTRUÇÕES:
+- Responda APENAS sobre eleições DF 2022
+- Use dados reais fornecidos
+- Seja preciso e objetivo
+- Formate com emojis e markdown`
+                        },
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    max_tokens: 500,
+                    temperature: 0.3
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`OpenAI API Error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.choices[0].message.content;
+            
+        } catch (error) {
+            throw new Error(`Erro OpenAI: ${error.message}`);
+        }
+    }
+    
+    // Função para chamar API DeepSeek
+    async callDeepSeek(prompt) {
+        const config = this.loadConfig();
+        if (!config.deepseek_key) {
+            throw new Error('API Key DeepSeek não configurada');
+        }
+        
+        try {
+            const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${config.deepseek_key}`
+                },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `Você é um assistente especializado em análise de dados eleitorais do DF 2022.
+                            
+DADOS DISPONÍVEIS:
+- 1.535.545 votos totais
+- 590 candidatos  
+- 19 zonas eleitorais
+- 6.748 seções eleitorais
+
+CANDIDATOS MAIS VOTADOS:
+1. VOTO BRANCO: 107.572 votos
+2. FRANCISCO DOMINGOS DOS SANTOS: 43.854 votos
+3. FÁBIO FELIX SILVEIRA: 40.775 votos
+4. Partido Liberal: 32.408 votos
+5. MARCOS MARTINS MACHADO: 31.993 votos
+
+MAPEAMENTO REGIÕES → ZONAS:
+- Ceilândia: Zona 9
+- Taguatinga: Zona 3
+- Brasília/Plano Piloto: Zona 1  
+- Gama: Zona 2
+- Samambaia: Zona 15
+
+INSTRUÇÕES:
+- Responda APENAS sobre eleições DF 2022
+- Use dados reais fornecidos
+- Seja preciso e objetivo
+- Formate com emojis e markdown`
+                        },
+                        {
+                            role: 'user', 
+                            content: prompt
+                        }
+                    ],
+                    max_tokens: 500,
+                    temperature: 0.3
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`DeepSeek API Error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.choices[0].message.content;
+            
+        } catch (error) {
+            throw new Error(`Erro DeepSeek: ${error.message}`);
+        }
+    }
+    
+    // Função principal de consulta com IA real
+    async consulta(pergunta) {
+        const config = this.loadConfig();
+        
+        try {
+            let resposta;
+            
+            // Tentar com o provedor preferido
+            if (config.ia_provider === 'openai' && config.openai_key) {
+                try {
+                    resposta = await this.callOpenAI(pergunta);
+                } catch (error) {
+                    console.log('Erro OpenAI:', error.message);
+                    
+                    // Fallback para DeepSeek se habilitado
+                    if (config.fallback && config.deepseek_key) {
+                        console.log('Tentando fallback para DeepSeek...');
+                        resposta = await this.callDeepSeek(pergunta);
+                    } else {
+                        throw error;
+                    }
+                }
+            } else if (config.ia_provider === 'deepseek' && config.deepseek_key) {
+                try {
+                    resposta = await this.callDeepSeek(pergunta);
+                } catch (error) {
+                    console.log('Erro DeepSeek:', error.message);
+                    
+                    // Fallback para OpenAI se habilitado
+                    if (config.fallback && config.openai_key) {
+                        console.log('Tentando fallback para OpenAI...');
+                        resposta = await this.callOpenAI(pergunta);
+                    } else {
+                        throw error;
+                    }
+                }
+            } else {
+                // Nenhuma API configurada, usar consulta local
+                return this.consultaLocal(pergunta);
+            }
+            
+            return {
+                success: true,
+                pergunta: pergunta,
+                resposta: resposta,
+                provider: config.ia_provider,
+                fallback_used: false
+            };
+            
+        } catch (error) {
+            console.log('Erro na consulta IA:', error.message);
+            
+            // Fallback para consulta local se tudo falhar
+            return this.consultaLocal(pergunta);
+        }
+    }
+    
+    // Consulta local (fallback final)
+    consultaLocal(pergunta) {
         const perguntaLower = pergunta.toLowerCase();
         
         if (perguntaLower.includes('top') || perguntaLower.includes('mais votados')) {
@@ -61,10 +281,14 @@ class EleicoesAPI {
                 resposta += `${index + 1}. **${candidato.nome}**: ${candidato.votos.toLocaleString()} votos\n`;
             });
             
+            resposta += `\n💡 *Consulta processada localmente*`;
+            
             return {
                 success: true,
                 pergunta: pergunta,
-                resposta: resposta
+                resposta: resposta,
+                provider: 'local',
+                fallback_used: true
             };
         }
         
@@ -83,24 +307,24 @@ class EleicoesAPI {
                     encontrados.forEach(candidato => {
                         resposta += `• **${candidato.nome}**: ${candidato.votos.toLocaleString()} votos\n`;
                     });
+                    resposta += `\n💡 *Consulta processada localmente*`;
+                    
                     return {
                         success: true,
                         pergunta: pergunta,
-                        resposta: resposta
+                        resposta: resposta,
+                        provider: 'local',
+                        fallback_used: true
                     };
                 } else {
                     return {
                         success: true,
                         pergunta: pergunta,
-                        resposta: `❌ Nenhum candidato encontrado com '${nomeBusca}'`
+                        resposta: `❌ Nenhum candidato encontrado com '${nomeBusca}'\n\n💡 *Consulta processada localmente*`,
+                        provider: 'local',
+                        fallback_used: true
                     };
                 }
-            } else {
-                return {
-                    success: true,
-                    pergunta: pergunta,
-                    resposta: "❌ Por favor, especifique o nome do candidato"
-                };
             }
         }
         
@@ -112,12 +336,16 @@ class EleicoesAPI {
 • **Zonas eleitorais**: ${this.estatisticas.zonas_eleitorais}
 • **Seções eleitorais**: ${this.estatisticas.secoes_eleitorais.toLocaleString()}
 • **Locais de votação**: ${this.estatisticas.locais_votacao}
-• **Sistema**: Operacional ✅`;
+• **Sistema**: Operacional ✅
+
+💡 *Consulta processada localmente*`;
             
             return {
                 success: true,
                 pergunta: pergunta,
-                resposta: resposta
+                resposta: resposta,
+                provider: 'local',
+                fallback_used: true
             };
         }
         
@@ -128,23 +356,32 @@ class EleicoesAPI {
             resposta: `❓ **Consultas disponíveis:**
 
 • "Top 5 candidatos mais votados"
-• "Buscar [nome do candidato]"
+• "Buscar [nome do candidato]"  
 • "Estatísticas gerais"
+• "Quantos votos [candidato] teve em [região]?"
+• "Comparar [região1] com [região2]"
 
-**Exemplos:**
-• "Top 10 mais votados"
-• "Buscar Francisco"
-• "Dados das eleições"`
+**Exemplos com IA:**
+• "Quantos votos Fábio Felix teve em Ceilândia?"
+• "Comparar votação entre Taguatinga e Gama"
+
+💡 *Para consultas avançadas, configure API Keys no painel admin*`,
+            provider: 'local',
+            fallback_used: true
         };
     }
     
     status() {
+        const config = this.loadConfig();
         return {
             success: true,
             status: 'online',
             database: 'simulated',
-            ia_provider: this.config.ia_provider,
-            version: '1.0.0'
+            ia_provider: config.ia_provider,
+            openai_configured: !!config.openai_key,
+            deepseek_configured: !!config.deepseek_key,
+            fallback_enabled: config.fallback,
+            version: '2.0.0'
         };
     }
     

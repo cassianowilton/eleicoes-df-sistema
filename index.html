@@ -224,7 +224,7 @@
 
     <script src="api.js"></script>
     <script>
-        // Função para fazer consulta à API
+        // Função para fazer consulta à API com IA real
         async function fazerConsulta() {
             const pergunta = document.getElementById('pergunta').value.trim();
             const resultadoDiv = document.getElementById('resultado');
@@ -237,44 +237,44 @@
             
             // Mostrar loading
             resultadoDiv.style.display = 'block';
-            respostaDiv.innerHTML = '⏳ Processando consulta...';
+            respostaDiv.innerHTML = '🤖 Processando consulta com IA...';
             
-            // Simular delay de API
-            setTimeout(() => {
-                try {
-                    const data = window.eleicoesAPI.consulta(pergunta);
-                    
-                    if (data.success) {
-                        respostaDiv.innerHTML = data.resposta.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    } else {
-                        respostaDiv.innerHTML = '❌ Erro: ' + (data.error || 'Erro desconhecido');
+            try {
+                // Chamar API com IA real (async)
+                const data = await window.eleicoesAPI.consulta(pergunta);
+                
+                if (data.success) {
+                    // Mostrar resultado com informações do provider
+                    let providerInfo = '';
+                    if (data.provider === 'openai') {
+                        providerInfo = '<br><small style="color: #10b981;">🤖 Processado com OpenAI</small>';
+                    } else if (data.provider === 'deepseek') {
+                        providerInfo = '<br><small style="color: #8b5cf6;">🧠 Processado com DeepSeek</small>';
+                    } else if (data.provider === 'local') {
+                        providerInfo = '<br><small style="color: #f59e0b;">💻 Processado localmente</small>';
                     }
-                } catch (error) {
-                    respostaDiv.innerHTML = '❌ Erro de processamento: ' + error.message;
+                    
+                    respostaDiv.innerHTML = data.resposta.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') + providerInfo;
+                } else {
+                    respostaDiv.innerHTML = '❌ Erro: ' + (data.error || 'Erro desconhecido');
                 }
-            }, 800);
+            }
         }
-        
-        // Permitir Enter para consultar
+
+        // Permitir Enter para fazer consulta
         document.getElementById('pergunta').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 fazerConsulta();
             }
         });
 
-        // Animação suave para os cards
+        // Animação de entrada
         document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.stat-card');
-            cards.forEach((card, index) => {
+            const sections = document.querySelectorAll('.hero, .search-section, .stats-grid, .info-section');
+            sections.forEach((section, index) => {
                 setTimeout(() => {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
-                    card.style.transition = 'all 0.6s ease';
-                    
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, 100);
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
                 }, index * 200);
             });
         });
