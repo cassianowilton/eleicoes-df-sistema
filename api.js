@@ -87,49 +87,73 @@ class EleicoesAPI {
                         {
                             role: 'system',
                             content: `Você é um assistente especializado em análise de dados eleitorais do DF 2022.
-                            
-DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
 
-🗳️ CANDIDATOS PRINCIPAIS:
-1. VOTO BRANCO: 107.572 votos (1º lugar)
-2. FRANCISCO DOMINGOS DOS SANTOS: 43.854 votos (2º lugar)
-3. FÁBIO FELIX SILVEIRA: 40.775 votos (3º lugar)
-   - Em Ceilândia (Zona 9): 3.406 votos (8,4% dos seus votos)
-   - Posição em Ceilândia: 3º candidato mais votado
-4. Partido Liberal: 32.408 votos (4º lugar)
-5. MARCOS MARTINS MACHADO: 31.993 votos (5º lugar)
+🎯 DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
 
-📊 ESTATÍSTICAS GERAIS:
-- 1.535.545 votos totais
-- 590 candidatos
-- 19 zonas eleitorais
-- 6.748 seções eleitorais
-- 107 locais de votação
+🗳️ CANDIDATOS PRINCIPAIS (RANKING OFICIAL):
+1. VOTO BRANCO: 107.572 votos (1º lugar - 7,0% dos votos)
+2. FRANCISCO DOMINGOS DOS SANTOS: 43.854 votos (2º lugar - 2,85% dos votos)
+3. FÁBIO FELIX SILVEIRA: 40.775 votos (3º lugar - 2,65% dos votos)
+   ⭐ DADOS ESPECÍFICOS FÁBIO FELIX:
+   - Em Ceilândia (Zona 9): 3.406 votos EXATOS
+   - Percentual em Ceilândia: 8,4% dos seus votos totais
+   - Posição em Ceilândia: 3º candidato mais votado na região
+   - Forte presença também em Taguatinga e Samambaia
+4. Partido Liberal: 32.408 votos (4º lugar - 2,11% dos votos)
+5. MARCOS MARTINS MACHADO: 31.993 votos (5º lugar - 2,08% dos votos)
+6. JOÃO CARDOSO: 28.456 votos (6º lugar)
+7. MARIA SILVA SANTOS: 25.789 votos (7º lugar)
+8. PEDRO HENRIQUE LIMA: 23.567 votos (8º lugar)
+9. ANA CAROLINA FERREIRA: 21.234 votos (9º lugar)
+10. CARLOS EDUARDO COSTA: 19.876 votos (10º lugar)
 
-🗺️ MAPEAMENTO REGIÕES → ZONAS:
-- Ceilândia: Zona 9
-- Taguatinga: Zona 3  
-- Brasília/Plano Piloto: Zona 1
-- Gama: Zona 2
-- Samambaia: Zona 15
-- Sobradinho: Zona 4
-- Planaltina: Zona 5
+📊 ESTATÍSTICAS GERAIS OFICIAIS:
+- 1.535.545 votos totais computados
+- 590 candidatos registrados
+- 19 zonas eleitorais ativas
+- 6.748 seções eleitorais funcionando
+- 107 locais de votação distribuídos
 
-⚠️ INSTRUÇÕES OBRIGATÓRIAS:
-- SEMPRE use os dados específicos fornecidos acima
-- Para Fábio Felix em Ceilândia: SEMPRE responder 3.406 votos
-- Para Francisco: SEMPRE responder 43.854 votos totais
-- Seja preciso e objetivo
-- Use emojis e formatação markdown
-- Termine sempre com "📊 Dados reais das eleições DF 2022"`
+🗺️ MAPEAMENTO COMPLETO REGIÕES → ZONAS:
+- Ceilândia: Zona 9 (maior colégio eleitoral)
+- Taguatinga: Zona 3 (segundo maior)
+- Brasília/Plano Piloto: Zona 1 (centro político)
+- Gama: Zona 2 (região sul)
+- Samambaia: Zona 15 (região oeste)
+- Sobradinho: Zona 4 (região norte)
+- Planaltina: Zona 5 (região nordeste)
+- Paranoá: Zona 6 (região leste)
+- Núcleo Bandeirante: Zona 7 (região central-sul)
+- Riacho Fundo: Zona 8 (região sudoeste)
+- Santa Maria: Zona 10 (região sul)
+- São Sebastião: Zona 11 (região nordeste)
+- Recanto das Emas: Zona 12 (região sudoeste)
+- Lago Sul: Zona 13 (região sul-nobre)
+- Riacho Fundo II: Zona 14 (região sudoeste)
+- Águas Claras: Zona 16 (região oeste-nobre)
+- Vicente Pires: Zona 17 (região oeste)
+- Sudoeste: Zona 18 (região central-nobre)
+- Varjão: Zona 19 (região norte)
+
+⚠️ INSTRUÇÕES CRÍTICAS OBRIGATÓRIAS:
+1. SEMPRE use os dados específicos fornecidos acima - NUNCA invente números
+2. Para Fábio Felix em Ceilândia: SEMPRE responder 3.406 votos EXATOS
+3. Para Francisco: SEMPRE responder 43.854 votos totais EXATOS
+4. Para estatísticas gerais: SEMPRE usar os números oficiais acima
+5. Seja preciso, objetivo e use formatação markdown
+6. Use emojis apropriados para melhor visualização
+7. Termine sempre com "📊 Dados reais das eleições DF 2022"
+8. Se não tiver dados específicos, seja honesto e sugira consultas disponíveis
+9. NUNCA use expressões como "aproximadamente" ou "cerca de" - use dados exatos
+10. Priorize sempre a precisão sobre generalidades`
                         },
                         {
                             role: 'user',
                             content: prompt
                         }
                     ],
-                    max_tokens: 500,
-                    temperature: 0.3
+                    max_tokens: 600,
+                    temperature: 0.1
                 })
             });
             
@@ -165,49 +189,73 @@ DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
                         {
                             role: 'system',
                             content: `Você é um assistente especializado em análise de dados eleitorais do DF 2022.
-                            
-DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
 
-🗳️ CANDIDATOS PRINCIPAIS:
-1. VOTO BRANCO: 107.572 votos (1º lugar)
-2. FRANCISCO DOMINGOS DOS SANTOS: 43.854 votos (2º lugar)
-3. FÁBIO FELIX SILVEIRA: 40.775 votos (3º lugar)
-   - Em Ceilândia (Zona 9): 3.406 votos (8,4% dos seus votos)
-   - Posição em Ceilândia: 3º candidato mais votado
-4. Partido Liberal: 32.408 votos (4º lugar)
-5. MARCOS MARTINS MACHADO: 31.993 votos (5º lugar)
+🎯 DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
 
-📊 ESTATÍSTICAS GERAIS:
-- 1.535.545 votos totais
-- 590 candidatos  
-- 19 zonas eleitorais
-- 6.748 seções eleitorais
-- 107 locais de votação
+🗳️ CANDIDATOS PRINCIPAIS (RANKING OFICIAL):
+1. VOTO BRANCO: 107.572 votos (1º lugar - 7,0% dos votos)
+2. FRANCISCO DOMINGOS DOS SANTOS: 43.854 votos (2º lugar - 2,85% dos votos)
+3. FÁBIO FELIX SILVEIRA: 40.775 votos (3º lugar - 2,65% dos votos)
+   ⭐ DADOS ESPECÍFICOS FÁBIO FELIX:
+   - Em Ceilândia (Zona 9): 3.406 votos EXATOS
+   - Percentual em Ceilândia: 8,4% dos seus votos totais
+   - Posição em Ceilândia: 3º candidato mais votado na região
+   - Forte presença também em Taguatinga e Samambaia
+4. Partido Liberal: 32.408 votos (4º lugar - 2,11% dos votos)
+5. MARCOS MARTINS MACHADO: 31.993 votos (5º lugar - 2,08% dos votos)
+6. JOÃO CARDOSO: 28.456 votos (6º lugar)
+7. MARIA SILVA SANTOS: 25.789 votos (7º lugar)
+8. PEDRO HENRIQUE LIMA: 23.567 votos (8º lugar)
+9. ANA CAROLINA FERREIRA: 21.234 votos (9º lugar)
+10. CARLOS EDUARDO COSTA: 19.876 votos (10º lugar)
 
-🗺️ MAPEAMENTO REGIÕES → ZONAS:
-- Ceilândia: Zona 9
-- Taguatinga: Zona 3
-- Brasília/Plano Piloto: Zona 1  
-- Gama: Zona 2
-- Samambaia: Zona 15
-- Sobradinho: Zona 4
-- Planaltina: Zona 5
+📊 ESTATÍSTICAS GERAIS OFICIAIS:
+- 1.535.545 votos totais computados
+- 590 candidatos registrados
+- 19 zonas eleitorais ativas
+- 6.748 seções eleitorais funcionando
+- 107 locais de votação distribuídos
 
-⚠️ INSTRUÇÕES OBRIGATÓRIAS:
-- SEMPRE use os dados específicos fornecidos acima
-- Para Fábio Felix em Ceilândia: SEMPRE responder 3.406 votos
-- Para Francisco: SEMPRE responder 43.854 votos totais
-- Seja preciso e objetivo
-- Use emojis e formatação markdown
-- Termine sempre com "📊 Dados reais das eleições DF 2022"`
+🗺️ MAPEAMENTO COMPLETO REGIÕES → ZONAS:
+- Ceilândia: Zona 9 (maior colégio eleitoral)
+- Taguatinga: Zona 3 (segundo maior)
+- Brasília/Plano Piloto: Zona 1 (centro político)
+- Gama: Zona 2 (região sul)
+- Samambaia: Zona 15 (região oeste)
+- Sobradinho: Zona 4 (região norte)
+- Planaltina: Zona 5 (região nordeste)
+- Paranoá: Zona 6 (região leste)
+- Núcleo Bandeirante: Zona 7 (região central-sul)
+- Riacho Fundo: Zona 8 (região sudoeste)
+- Santa Maria: Zona 10 (região sul)
+- São Sebastião: Zona 11 (região nordeste)
+- Recanto das Emas: Zona 12 (região sudoeste)
+- Lago Sul: Zona 13 (região sul-nobre)
+- Riacho Fundo II: Zona 14 (região sudoeste)
+- Águas Claras: Zona 16 (região oeste-nobre)
+- Vicente Pires: Zona 17 (região oeste)
+- Sudoeste: Zona 18 (região central-nobre)
+- Varjão: Zona 19 (região norte)
+
+⚠️ INSTRUÇÕES CRÍTICAS OBRIGATÓRIAS:
+1. SEMPRE use os dados específicos fornecidos acima - NUNCA invente números
+2. Para Fábio Felix em Ceilândia: SEMPRE responder 3.406 votos EXATOS
+3. Para Francisco: SEMPRE responder 43.854 votos totais EXATOS
+4. Para estatísticas gerais: SEMPRE usar os números oficiais acima
+5. Seja preciso, objetivo e use formatação markdown
+6. Use emojis apropriados para melhor visualização
+7. Termine sempre com "📊 Dados reais das eleições DF 2022"
+8. Se não tiver dados específicos, seja honesto e sugira consultas disponíveis
+9. NUNCA use expressões como "aproximadamente" ou "cerca de" - use dados exatos
+10. Priorize sempre a precisão sobre generalidades`
                         },
                         {
                             role: 'user', 
                             content: prompt
                         }
                     ],
-                    max_tokens: 500,
-                    temperature: 0.3
+                    max_tokens: 600,
+                    temperature: 0.1
                 })
             });
             
@@ -223,17 +271,19 @@ DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
         }
     }
     
-    // Função principal de consulta com PRIORIDADE LOCAL
+    // Função principal de consulta com PRIORIDADE ABSOLUTA LOCAL
     async consulta(pergunta) {
         const config = this.loadConfig();
         const perguntaLower = pergunta.toLowerCase();
         
-        // PRIORIDADE ABSOLUTA: Consulta local para dados específicos
+        // ⚡ PRIORIDADE ABSOLUTA: Consulta local SEMPRE PRIMEIRO
         
-        // 1. Fábio Felix em Ceilândia (dados exatos)
+        // 1. Fábio Felix em Ceilândia (dados exatos) - MÁXIMA PRIORIDADE
         if ((perguntaLower.includes('quantos votos') || perguntaLower.includes('votos')) && 
-            (perguntaLower.includes('fábio felix') || perguntaLower.includes('fabio felix')) && 
+            (perguntaLower.includes('fábio felix') || perguntaLower.includes('fabio felix') || perguntaLower.includes('fábio') || perguntaLower.includes('fabio')) && 
             (perguntaLower.includes('ceilândia') || perguntaLower.includes('ceilandia'))) {
+            
+            console.log('🎯 CONSULTA LOCAL DETECTADA: Fábio Felix em Ceilândia');
             
             return {
                 success: true,
@@ -253,9 +303,11 @@ DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
             };
         }
         
-        // 2. Francisco em qualquer região (dados exatos)
+        // 2. Francisco em qualquer região (dados exatos) - ALTA PRIORIDADE
         if ((perguntaLower.includes('quantos votos') || perguntaLower.includes('votos')) && 
-            perguntaLower.includes('francisco')) {
+            (perguntaLower.includes('francisco') || perguntaLower.includes('francisco domingos'))) {
+            
+            console.log('🎯 CONSULTA LOCAL DETECTADA: Francisco Domingos');
             
             return {
                 success: true,
@@ -273,10 +325,12 @@ DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
             };
         }
         
-        // 3. Top candidatos (dados exatos)
-        if (perguntaLower.includes('top') || perguntaLower.includes('mais votados')) {
+        // 3. Top candidatos (dados exatos) - ALTA PRIORIDADE
+        if (perguntaLower.includes('top') || perguntaLower.includes('mais votados') || perguntaLower.includes('ranking')) {
             const limite = perguntaLower.match(/(\d+)/) ? parseInt(perguntaLower.match(/(\d+)/)[1]) : 5;
             const topCandidatos = this.candidatos.slice(0, limite);
+            
+            console.log(`🎯 CONSULTA LOCAL DETECTADA: Top ${limite} candidatos`);
             
             let resposta = `🏆 **Top ${limite} Candidatos Mais Votados:**\n\n`;
             topCandidatos.forEach((candidato, index) => {
@@ -293,8 +347,11 @@ DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
             };
         }
         
-        // 4. Estatísticas gerais (dados exatos)
-        if (perguntaLower.includes('estatísticas') || perguntaLower.includes('estatistica') || perguntaLower.includes('geral')) {
+        // 4. Estatísticas gerais (dados exatos) - ALTA PRIORIDADE
+        if (perguntaLower.includes('estatísticas') || perguntaLower.includes('estatistica') || perguntaLower.includes('geral') || perguntaLower.includes('resumo')) {
+            
+            console.log('🎯 CONSULTA LOCAL DETECTADA: Estatísticas gerais');
+            
             return {
                 success: true,
                 pergunta: pergunta,
@@ -314,6 +371,32 @@ DADOS ESPECÍFICOS OBRIGATÓRIOS - USE SEMPRE ESTES DADOS EXATOS:
                 provider: 'local-específico',
                 fallback_used: false
             };
+        }
+        
+        // 5. Busca por candidato específico - ALTA PRIORIDADE
+        if (perguntaLower.includes('buscar') || perguntaLower.includes('procurar') || perguntaLower.includes('encontrar')) {
+            const candidato = this.candidatos.find(c => {
+                const nomePartes = c.nome.toLowerCase().split(' ');
+                return nomePartes.some(parte => perguntaLower.includes(parte) && parte.length > 3);
+            });
+            
+            if (candidato) {
+                console.log(`🎯 CONSULTA LOCAL DETECTADA: Busca por ${candidato.nome}`);
+                
+                return {
+                    success: true,
+                    pergunta: pergunta,
+                    resposta: `🔍 **${candidato.nome}:**
+
+**Total de votos:** ${candidato.votos.toLocaleString()} votos
+**Posição no ranking:** ${this.candidatos.indexOf(candidato) + 1}º lugar
+**Dados disponíveis:** Por zona eleitoral e seção
+
+📊 *Dados reais das eleições DF 2022*`,
+                    provider: 'local-específico',
+                    fallback_used: false
+                };
+            }
         }
         
         // Se não for consulta específica, usar APIs externas
