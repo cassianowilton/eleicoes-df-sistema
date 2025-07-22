@@ -8,7 +8,7 @@ from flask_cors import CORS
 from src.routes.eleicoes import eleicoes_bp
 from src.routes.whatsapp import whatsapp_bp
 from src.routes.llm import llm_bp
-from src.routes.admin import admin_bp
+from src.routes.admin_simple import admin_simple
 from src.static_routes import register_static_routes
 
 app = Flask(__name__)
@@ -25,7 +25,7 @@ CORS(app, origins=["*"])
 app.register_blueprint(eleicoes_bp, url_prefix='/api')
 app.register_blueprint(whatsapp_bp, url_prefix='/api/whatsapp')
 app.register_blueprint(llm_bp, url_prefix='/api/llm')
-app.register_blueprint(admin_bp, url_prefix='/api/admin')
+app.register_blueprint(admin_simple)
 
 # Registrar rotas estáticas
 register_static_routes(app)
