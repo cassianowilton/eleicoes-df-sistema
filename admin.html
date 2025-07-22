@@ -273,6 +273,27 @@
             };
             
             try {
+                // Verificar se API está carregada
+                if (!window.eleicoesAPI) {
+                    // Criar API inline se não carregou
+                    window.eleicoesAPI = {
+                        setConfig: function(newConfig) {
+                            localStorage.setItem('admin_config', JSON.stringify(newConfig));
+                            return { success: true, message: 'Configurações salvas com sucesso' };
+                        },
+                        getConfig: function() {
+                            const saved = localStorage.getItem('admin_config');
+                            const config = saved ? JSON.parse(saved) : {
+                                ia_provider: 'openai',
+                                openai_key: '',
+                                deepseek_key: '',
+                                fallback: true
+                            };
+                            return { success: true, config: config };
+                        }
+                    };
+                }
+                
                 const result = window.eleicoesAPI.setConfig(config);
                 
                 if (result.success) {
@@ -288,6 +309,27 @@
         // Carregar configurações ao abrir a página
         function carregarConfiguracoes() {
             try {
+                // Verificar se API está carregada
+                if (!window.eleicoesAPI) {
+                    // Criar API inline se não carregou
+                    window.eleicoesAPI = {
+                        setConfig: function(newConfig) {
+                            localStorage.setItem('admin_config', JSON.stringify(newConfig));
+                            return { success: true, message: 'Configurações salvas com sucesso' };
+                        },
+                        getConfig: function() {
+                            const saved = localStorage.getItem('admin_config');
+                            const config = saved ? JSON.parse(saved) : {
+                                ia_provider: 'openai',
+                                openai_key: '',
+                                deepseek_key: '',
+                                fallback: true
+                            };
+                            return { success: true, config: config };
+                        }
+                    };
+                }
+                
                 const result = window.eleicoesAPI.getConfig();
                 
                 if (result.success) {
