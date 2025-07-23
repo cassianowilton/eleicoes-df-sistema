@@ -80,6 +80,25 @@
             background: rgba(244, 67, 54, 0.3);
         }
 
+        .new-conversation-btn {
+            background: linear-gradient(45deg, #64b5f6, #42a5f5);
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .new-conversation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 181, 246, 0.3);
+        }
+
         /* Área Principal */
         .main-area {
             display: flex;
@@ -342,7 +361,13 @@
     <div class="container">
         <!-- Sidebar Histórico -->
         <div class="sidebar">
-            <h3>📋 Histórico de Consultas</h3>
+            <h3>💬 Conversas</h3>
+            
+            <!-- Botão Nova Conversa -->
+            <div class="new-conversation-btn" onclick="startNewConversation()">
+                ➕ Nova Conversa
+            </div>
+            
             <div id="historyList">
                 <!-- Histórico será carregado aqui -->
             </div>
@@ -407,12 +432,14 @@
 
     <script src="api.js"></script>
     <script>
-        let chatHistory = [];
-        let currentSessionId = Date.now();
+        let conversations = [];
+        let currentConversation = null;
+        let currentConversationId = null;
 
         // Carregar histórico ao iniciar
         window.onload = function() {
-            loadHistory();
+            loadConversations();
+            startNewConversation();
         };
 
         function handleKeyPress(event) {
@@ -420,6 +447,24 @@
                 event.preventDefault();
                 sendMessage();
             }
+        }
+
+        function startNewConversation() {
+            currentConversationId = Date.now();
+            currentConversation = {
+                id: currentConversationId,
+                title: null,
+                messages: [],
+                timestamp: new Date().toLocaleString('pt-BR')
+            };
+            
+            // Limpar chat atual
+            document.getElementById('chatMessages').innerHTML = '';
+            document.getElementById('chatMessages').style.display = 'none';
+            document.getElementById('welcomeMessage').style.display = 'block';
+            
+            // Atualizar display do histórico
+            updateConversationsDisplay();
         }
 
         async function sendMessage() {
@@ -432,7 +477,18 @@
             input.disabled = true;
             document.getElementById('sendBtn').disabled = true;
             
-            // Adicionar mensagem do usuário
+            // Adicionar mensagem do usuário à conversa atual
+            const userMessage = { type: 'user', content: message, timestamp: new Date() };
+            currentConversation.messages.push(userMessage);
+            
+            // Se é a primeira mensagem, definir título da conversa
+            if (!currentConversation.title) {
+                currentConversation.title = message.length > 50 
+                    ? message.substring(0, 50) + '...'
+                    : message;
+            }
+            
+            // Adicionar mensagem do usuário na tela
             addMessage('user', message);
             
             // Limpar input
@@ -453,18 +509,31 @@
                 hideLoading();
                 
                 // Adicionar resposta da IA
+                let aiResponse;
                 if (response.success) {
-                    addMessage('ai', response.resposta);
-                    
-                    // Salvar no histórico
-                    saveToHistory(message, response.resposta);
+                    aiResponse = response.resposta;
+                    addMessage('ai', aiResponse);
                 } else {
-                    addMessage('ai', '❌ Erro: ' + (response.error || 'Não foi possível processar sua pergunta.'));
+                    aiResponse = '❌ Erro: ' + (response.error || 'Não foi possível processar sua pergunta.');
+                    addMessage('ai', aiResponse);
                 }
+                
+                // Adicionar resposta da IA à conversa atual
+                const aiMessage = { type: 'ai', content: aiResponse, timestamp: new Date() };
+                currentConversation.messages.push(aiMessage);
+                
+                // Salvar conversa atualizada
+                saveCurrentConversation();
                 
             } catch (error) {
                 hideLoading();
-                addMessage('ai', '❌ Erro de conexão: ' + error.message);
+                const errorMessage = '❌ Erro de conexão: ' + error.message;
+                addMessage('ai', errorMessage);
+                
+                // Adicionar erro à conversa atual
+                const aiMessage = { type: 'ai', content: errorMessage, timestamp: new Date() };
+                currentConversation.messages.push(aiMessage);
+                saveCurrentConversation();
             }
             
             // Reabilitar input
@@ -513,75 +582,91 @@
             document.getElementById('welcomeMessage').style.display = 'none';
         }
 
-        function saveToHistory(question, answer) {
-            const historyItem = {
-                id: Date.now(),
-                question: question,
-                answer: answer,
-                timestamp: new Date().toLocaleString('pt-BR')
-            };
+        function saveCurrentConversation() {
+            // Encontrar se a conversa já existe no array
+            const existingIndex = conversations.findIndex(conv => conv.id === currentConversationId);
             
-            chatHistory.unshift(historyItem);
-            
-            // Manter apenas os últimos 20 itens
-            if (chatHistory.length > 20) {
-                chatHistory = chatHistory.slice(0, 20);
+            if (existingIndex >= 0) {
+                // Atualizar conversa existente
+                conversations[existingIndex] = { ...currentConversation };
+            } else {
+                // Adicionar nova conversa
+                conversations.unshift({ ...currentConversation });
             }
             
-            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-            updateHistoryDisplay();
+            // Manter apenas as últimas 20 conversas
+            if (conversations.length > 20) {
+                conversations = conversations.slice(0, 20);
+            }
+            
+            localStorage.setItem('conversations', JSON.stringify(conversations));
+            updateConversationsDisplay();
         }
 
-        function loadHistory() {
-            const saved = localStorage.getItem('chatHistory');
+        function loadConversations() {
+            const saved = localStorage.getItem('conversations');
             if (saved) {
-                chatHistory = JSON.parse(saved);
-                updateHistoryDisplay();
+                conversations = JSON.parse(saved);
+                updateConversationsDisplay();
             }
         }
 
-        function updateHistoryDisplay() {
+        function updateConversationsDisplay() {
             const historyList = document.getElementById('historyList');
             historyList.innerHTML = '';
             
-            chatHistory.forEach(item => {
-                const historyDiv = document.createElement('div');
-                historyDiv.className = 'history-item';
-                historyDiv.onclick = () => loadHistoryItem(item);
+            conversations.forEach(conversation => {
+                const conversationDiv = document.createElement('div');
+                conversationDiv.className = 'history-item';
+                if (currentConversationId === conversation.id) {
+                    conversationDiv.classList.add('active');
+                }
+                conversationDiv.onclick = () => loadConversation(conversation);
                 
-                const preview = item.question.length > 50 
-                    ? item.question.substring(0, 50) + '...'
-                    : item.question;
+                const messageCount = conversation.messages.length;
+                const lastMessage = conversation.messages[messageCount - 1];
+                const preview = conversation.title || 'Nova conversa';
                 
-                historyDiv.innerHTML = `
+                conversationDiv.innerHTML = `
                     <div style="font-weight: 500; margin-bottom: 4px;">${preview}</div>
-                    <div style="font-size: 12px; color: #888;">${item.timestamp}</div>
+                    <div style="font-size: 12px; color: #888;">
+                        ${messageCount} mensagens • ${conversation.timestamp}
+                    </div>
                 `;
                 
-                historyList.appendChild(historyDiv);
+                historyList.appendChild(conversationDiv);
             });
         }
 
-        function loadHistoryItem(item) {
+        function loadConversation(conversation) {
+            // Salvar conversa atual se houver mudanças
+            if (currentConversation && currentConversation.messages.length > 0) {
+                saveCurrentConversation();
+            }
+            
+            // Carregar conversa selecionada
+            currentConversationId = conversation.id;
+            currentConversation = { ...conversation };
+            
             // Limpar chat atual
             document.getElementById('chatMessages').innerHTML = '';
             hideWelcomeMessage();
             
-            // Carregar conversa
-            addMessage('user', item.question);
-            addMessage('ai', item.answer);
+            // Carregar todas as mensagens da conversa
+            conversation.messages.forEach(message => {
+                addMessage(message.type, message.content);
+            });
+            
+            // Atualizar display do histórico
+            updateConversationsDisplay();
         }
 
         function clearHistory() {
-            if (confirm('Tem certeza que deseja limpar todo o histórico?')) {
-                chatHistory = [];
-                localStorage.removeItem('chatHistory');
-                updateHistoryDisplay();
-                
-                // Limpar chat atual
-                document.getElementById('chatMessages').innerHTML = '';
-                document.getElementById('chatMessages').style.display = 'none';
-                document.getElementById('welcomeMessage').style.display = 'block';
+            if (confirm('Tem certeza que deseja limpar todo o histórico de conversas?')) {
+                conversations = [];
+                localStorage.removeItem('conversations');
+                updateConversationsDisplay();
+                startNewConversation();
             }
         }
 
