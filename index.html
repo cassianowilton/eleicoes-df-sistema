@@ -27,6 +27,7 @@
 
         /* Sidebar Histórico */
         .sidebar {
+            width: 280px;
             background: rgba(0, 0, 0, 0.3);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             padding: 20px;
@@ -34,6 +35,7 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            position: relative;
         }
 
         .sidebar h3 {
@@ -49,9 +51,13 @@
             overflow-x: hidden;
             margin-bottom: 20px;
             padding-right: 8px;
+            height: 0;
+            min-height: 200px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(100, 181, 246, 0.4) rgba(100, 181, 246, 0.1);
         }
 
-        /* Estilização da barra de rolagem */
+        /* Estilização da barra de rolagem para WebKit */
         #historyList::-webkit-scrollbar {
             width: 6px;
         }
@@ -68,12 +74,6 @@
 
         #historyList::-webkit-scrollbar-thumb:hover {
             background: rgba(100, 181, 246, 0.6);
-        }
-
-        /* Para Firefox */
-        #historyList {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(100, 181, 246, 0.4) rgba(100, 181, 246, 0.1);
         }
 
         .history-item {
